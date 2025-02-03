@@ -44,10 +44,10 @@ contract Ping is Router {
         uint256 handleGasAmount
     );
 
-    constructor(address _mailbox, address _hook) Router(_mailbox) {
+    constructor(address _mailbox) Router(_mailbox) {
         // Transfer ownership of the contract to deployer
         _transferOwnership(msg.sender);
-        setHook(_hook);
+        setHook(address(0));
     }
 
     // ============ External functions ============

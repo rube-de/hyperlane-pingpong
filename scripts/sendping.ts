@@ -15,20 +15,9 @@ async function main() {
 
   const signer = await ethers.provider.getSigner();
   console.log(`dispatch on on sapphire...`);
-  const mailbox = await ethers.getContractAt("Mailbox", mailboxAddr, signer);
-  let dispatch = await mailbox["dispatch(uint32,bytes32,bytes,bytes,address)"](
-    hostId,
-    ethers.zeroPadValue(pingAddr, 32),
-    ethers.toUtf8Bytes(message),
-    ethers.toUtf8Bytes(""),
-    hookAddr,
-    // {value: ethers.parseEther("0.001")}
-  )
-  // let fee = await mailbox["quoteDispatch(uint32,bytes32,bytes)"](
-  //   hostId,
-  //   ethers.encodeBytes32String(message),
-  //   ethers.getBytes(hookAddr)
-  // );
+  const pong = await ethers.getContractAt("Ping", pongAddr, signer);
+  const tx = await pong.sendPing(hostId, message);
+  console.log(tx);
   console.log(`dispatched`);
 }
 

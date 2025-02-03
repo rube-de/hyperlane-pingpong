@@ -13,14 +13,15 @@ async function main() {
 
 
   const signer = await ethers.provider.getSigner();
-  console.log(`quote on on sapphire...`);
+  console.log(`dispatch on on arb...`);
   const mailbox = await ethers.getContractAt("Mailbox", mailboxAddr, signer);
   let dispatch = await mailbox["dispatch(uint32,bytes32,bytes,bytes,address)"](
     enclaveId,
     ethers.zeroPadValue(pongAddr, 32),
     ethers.toUtf8Bytes(message),
     ethers.toUtf8Bytes(""),
-    hookAddr, {value: ethers.parseEther("0.00001")}
+    hookAddr, 
+  {value: ethers.parseEther("0.00001")}
   )
   // let fee = await mailbox["quoteDispatch(uint32,bytes32,bytes)"](
   //   hostId,

@@ -2,8 +2,8 @@ import { ethers } from "hardhat";
 
 async function main() {
     
-  let pingAddr = "0x474b4c56E11F60a6e66E830929403F7fAD7c8C49";
-  let pongAddr = "0x798f05e3978bcA0d528665F3e1dA1852b0CC3eba";
+  let pingAddr = "0x18093D22421579b032a1aDb00921DA4453D8C873";
+  let pongAddr = "0xc9Bb46C8f655E8781046f67963dE77e9C038Fc11";
     // let pingAddr = "0x060BCB34A68805021901f05830234e6327E49BC7";
     let hostId = "421614";
     // let hostId = "11155111";

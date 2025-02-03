@@ -33,14 +33,20 @@ subtask("deployPing")
   // .addParam("hook", "Hook for the contract eg IGP", "0x0000000000000000000000000000000000000000")
   .addParam("pingNetwork", "Network to deploy the Ping contract on", "arbitrumsepolia")
   .addParam("mailbox", "Mailbox contract address", "0x598facE78a4302f11E3de0bee1894Da0b2Cb71F8")
-  .addParam("hook", "Hook for the contract, for ISM or IGP", "0x0000000000000000000000000000000000000000")
-  .setAction(async ({pingNetwork, mailbox, hook}, hre) => {
+  .addParam("ismAddr", "Custom ISM for the contract", "0x983F1219F9828D24CC263d7Ee17991C25AabAEb3")
+  .setAction(async ({pingNetwork, mailbox, ismAddr}, hre) => {
     await hre.switchNetwork(pingNetwork);
     console.log(`Deploying on ${hre.network.name}...`);
     const Ping = await hre.ethers.getContractFactory("Ping");    
-    const ping = await Ping.deploy(mailbox, hook);
+    const ping = await Ping.deploy(mailbox);
     const pingAddr = await ping.waitForDeployment();
     console.log(`Ping deployed at: ${pingAddr.target}`);
+    // set custom ISM
+    console.log(`set custom ISM to: ${ismAddr}`);
+    // const signer = await hre.ethers.provider.getSigner();
+    // const ping = await hre.ethers.getContractAt("Ping", pingAddr, signer);
+    await ping.setInterchainSecurityModule(ismAddr);
+    
     return pingAddr.target;
 })
 
@@ -48,12 +54,12 @@ subtask("deployPong")
   .addParam("pongNetwork", "Network to deploy the Pong contract on", "sapphire-testnet")
   .addParam("mailbox", "Mailbox contract address", "0x8cd4D8103B5962dCA62E4c05C28F78D7Ae5147aF")
   // .addParam("hook", "Hook for the contract", "0x0000000000000000000000000000000000000000")
-  .addParam("hook", "Hook for the contract, trustedrelayerISM", "0x983F1219F9828D24CC263d7Ee17991C25AabAEb3")
-  .setAction(async ({pongNetwork, mailbox, hook}, hre) => {
+  .addParam("ismAddr", "Custom ISM for Hook for the contract", "0x0000000000000000000000000000000000000000")
+  .setAction(async ({pongNetwork, mailbox, ismAddr}, hre) => {
     await hre.switchNetwork(pongNetwork);
     console.log(`Deploying on ${hre.network.name}...`);
     const Pong = await hre.ethers.getContractFactory("Ping");
-    const pong = await Pong.deploy(mailbox, hook);
+    const pong = await Pong.deploy(mailbox);
     const pongAddr = await pong.waitForDeployment();
     console.log(`Pong deployed at: ${pongAddr.target}`);
     return pongAddr.target;
@@ -98,36 +104,23 @@ task("send-ping")
     console.log(`Sending message on ${hre.network.name}...`);
     const signer = await hre.ethers.provider.getSigner();
     const ping = await hre.ethers.getContractAt("Ping", pingAddr, signer);
-    // const ping = await hre.ethers.getContractAt("PingPong", pingAddr, signer);
 
     // get mailbox for pingpong
-    // const mailboxAddr = await ping.mailbox();
-    // const mailbox = await hre.ethers.getContractAt("IMailbox", mailboxAddr, signer);
+    const mailboxAddr = await ping.mailbox();
+    console.log(`Mailbox address: ${mailboxAddr}`);
     //calc fee
     console.log("Calculating fee...");
-    // let fee = await mailbox["quoteDispatch(uint32,bytes32,bytes)"](
-    //     destChainId,
-    //     hre.ethers.zeroPadValue(pongAddr, 32),
-    //     hre.ethers.encodeBytes32String(message));
-    // fee = fee * 2n;
-
-    // ping
     let fee = await ping.quoteDispatch(
         destChainId,
         hre.ethers.toUtf8Bytes(message));
     // fee = fee * 2n;
-    
     // fee = hre.ethers.parseEther('0.00001');
     console.log(`Fee: ${hre.ethers.formatEther(fee)} ETH`);
 
     console.log("Sending message...");
     try {
-        const result = await ping.getFunction('sendPing')
-            // .send(destChainId, pongAddr, message);    
-            .send(destChainId, message, { value: fee });    // ping  
-            // .send(destChainId, pongAddr, message, { value: fee });    // pingpong
-            // .send(pongAddr, destChainId, hre.ethers.encodeBytes32String(message), { value: fee });         
-            await result.wait();
+      const result = await ping.sendPing(destChainId, message, {value: fee});
+      await result.wait();
     } catch (error) {
         console.error(error);
     }
@@ -147,22 +140,10 @@ task("send-pong")
     const pong = await hre.ethers.getContractAt("Ping", pongAddr, signer);
 
     const mailbox = await pong.mailbox();
-    console.log(`mailbox router adr: ${mailbox}`);
+    console.log(`Mailbox address: ${mailbox}`);
 
-    // const ping = await hre.ethers.getContractAt("PingPong", pingAddr, signer);
-
-    // get mailbox for pingpong
-    // const mailboxAddr = await ping.mailbox();
-    // const mailbox = await hre.ethers.getContractAt("IMailbox", mailboxAddr, signer);
     //calc fee
     console.log("Calculating fee...");
-    // let fee = await mailbox["quoteDispatch(uint32,bytes32,bytes)"](
-    //     destChainId,
-    //     hre.ethers.zeroPadValue(pongAddr, 32),
-    //     hre.ethers.encodeBytes32String(message));
-    // fee = fee * 2n;
-
-    // ping
     let fee = hre.ethers.parseEther("0");
     try {
       fee = await pong.quoteDispatch(
@@ -172,20 +153,13 @@ task("send-pong")
     } catch (error) {
       console.log(error)
     }
-      
-    // fee = fee * 2n;
-    
-    fee = hre.ethers.parseEther('0.00001');
+    // fee = hre.ethers.parseEther('0.00001');
     console.log(`Fee: ${hre.ethers.formatEther(fee)} TEST`);
 
     console.log("Sending message...");
     try {
-        const result = await pong.getFunction('sendPing')
-            // .send(destChainId, pongAddr, message);    
-            .send(destChainId, message, { value: fee });    // ping  
-            // .send(destChainId, pongAddr, message, { value: fee });    // pingpong
-            // .send(pongAddr, destChainId, hre.ethers.encodeBytes32String(message), { value: fee });         
-            await result.wait();
+        const result = await pong.sendPing(destChainId, message);
+        await result.wait();
     } catch (error) {
         console.error(error);
     }
