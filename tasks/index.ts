@@ -62,7 +62,7 @@ task("full-ping")
     await hre.run("verify-ping", {
       contractAddr: pongAddr,
       message,
-      receiveNetwork: enclaveNetwork
+      receiveNetwork: hostNetwork
     });
 })
 
