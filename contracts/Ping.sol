@@ -28,12 +28,12 @@ contract Ping is Router {
     mapping(uint32 => uint256) public receivedFrom;
 
     // ============ Events ============
-    event SentPingPong(
+    event SentPing(
         uint32 indexed origin,
         uint32 indexed destination,
         string message
     );
-    event ReceivedPingPong(
+    event ReceivedPing(
         uint32 indexed origin,
         uint32 indexed destination,
         bytes32 sender,
@@ -65,7 +65,7 @@ contract Ping is Router {
         sent += 1;
         sentTo[_destinationDomain] += 1;
         _dispatch(_destinationDomain, bytes(_message));
-        emit SentPingPong(
+        emit SentPing(
             mailbox.localDomain(),
             _destinationDomain,
             _message
@@ -98,7 +98,7 @@ contract Ping is Router {
     ) internal override {
         received += 1;
         receivedFrom[_origin] += 1;
-        emit ReceivedPingPong(
+        emit ReceivedPing(
             _origin,
             mailbox.localDomain(),
             _sender,
