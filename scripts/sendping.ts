@@ -4,7 +4,7 @@ async function main() {
     
   let pingAddr = "0x18093D22421579b032a1aDb00921DA4453D8C873";
   let pongAddr = "0xc9Bb46C8f655E8781046f67963dE77e9C038Fc11";
-  let mailboxAddr = "0x8cd4D8103B5962dCA62E4c05C28F78D7Ae5147aF";
+  let mailboxAddr = "0x79d3ECb26619B968A68CE9337DfE016aeA471435";
   let hookAddr = ethers.ZeroAddress;
   // let hookAddr = "0x983F1219F9828D24CC263d7Ee17991C25AabAEb3"
   // let hostId = 11155111;
