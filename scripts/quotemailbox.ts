@@ -4,7 +4,7 @@ async function main() {
     
   let pingAddr = "0x474b4c56E11F60a6e66E830929403F7fAD7c8C49";
   let pongAddr = "0x798f05e3978bcA0d528665F3e1dA1852b0CC3eba";
-  let mailboxAddr = "0x8cd4D8103B5962dCA62E4c05C28F78D7Ae5147aF";
+  let mailboxAddr = "0x79d3ECb26619B968A68CE9337DfE016aeA471435";
   let hookAddr = "0x983F1219F9828D24CC263d7Ee17991C25AabAEb3"
   // let hostId = 11155111;
   let hostId = 421614;
